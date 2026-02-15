@@ -424,7 +424,43 @@ class WiFiDialog(ctk.CTkToplevel):
         self.refresh_list()
 
     def import_windows_wifi(self):
-        profiles = get_windows_wifi_profiles()
+        # Create Loading Popup
+        loading_dialog = ctk.CTkToplevel(self)
+        loading_dialog.title("Loading...")
+        loading_dialog.transient(self)
+        loading_dialog.grab_set()
+        
+        # Center Window Helper
+        def center_loading(width, height):
+            loading_dialog.update_idletasks()
+            screen_width = loading_dialog.winfo_screenwidth()
+            screen_height = loading_dialog.winfo_screenheight()
+            x = (screen_width - width) // 2
+            y = (screen_height - height) // 2
+            loading_dialog.geometry(f"{width}x{height}+{x}+{y}")
+        center_loading(300, 100)
+
+        ctk.CTkLabel(loading_dialog, text="Fetching Wi-Fi Profiles...", font=("Arial", 14)).pack(expand=True)
+        
+        # Function to run in thread
+        def fetch_profiles():
+            try:
+                profiles = get_windows_wifi_profiles()
+                # Schedule GUI update on main thread
+                self.after(0, lambda: self.on_profiles_fetched(profiles, loading_dialog))
+            except Exception as e:
+                self.after(0, lambda: self.on_import_error(e, loading_dialog))
+
+        import threading
+        threading.Thread(target=fetch_profiles, daemon=True).start()
+
+    def on_import_error(self, error, loading_dialog):
+        loading_dialog.destroy()
+        messagebox.showerror("Error", f"Failed to import profiles: {error}")
+
+    def on_profiles_fetched(self, profiles, loading_dialog):
+        loading_dialog.destroy()
+        
         if not profiles:
             messagebox.showinfo("Import", "No saved Wi-Fi profiles found or could not retrieve passwords.")
             return
@@ -459,14 +495,23 @@ class WiFiDialog(ctk.CTkToplevel):
             dialog.geometry(f"{width}x{height}+{x}+{y}")
         center_window(350, 400)
 
-        ctk.CTkLabel(dialog, text="Select Networks to Import:", font=("Arial", 14, "bold")).pack(pady=10)
+        ctk.CTkLabel(dialog, text="Select Networks to Import:", font=("Arial", 14, "bold")).pack(pady=(10, 5))
+
+        # Select All Checkbox
+        def toggle_select_all():
+            val = select_all_var.get()
+            for _, var in checkboxes:
+                var.set(val)
+
+        select_all_var = ctk.BooleanVar(value=False)
+        ctk.CTkCheckBox(dialog, text="Select All", variable=select_all_var, command=toggle_select_all, font=("Arial", 12, "bold")).pack(anchor="w", padx=25, pady=5)
 
         scroll = ctk.CTkScrollableFrame(dialog)
         scroll.pack(fill="both", expand=True, padx=10, pady=5)
 
         checkboxes = []
         for p in profiles:
-            var = ctk.BooleanVar(value=True)
+            var = ctk.BooleanVar(value=False)
             chk = ctk.CTkCheckBox(scroll, text=p['ssid'], variable=var)
             chk.pack(anchor="w", pady=2, padx=5)
             checkboxes.append((p, var))
