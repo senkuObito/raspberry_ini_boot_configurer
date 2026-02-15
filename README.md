@@ -58,23 +58,35 @@ A modern, user-friendly GUI tool for configuring Raspberry Pi boot files (`ssh`,
 
 ## Building and Releasing
 
-To create a standalone executable (`.exe`) for Windows:
+### Option 1: Automatic Builds (GitHub Actions)
+
+This repository is set up with **GitHub Actions** to automatically build the application.
+
+1.  **Push to GitHub**:
+    Whenever you push changes to the `main` branch, GitHub will automatically build a new `.exe`.
+    - Go to the **Actions** tab in your repository.
+    - Click on the latest run.
+    - Under **Artifacts**, download `RaspberryPiBootConfigurer.exe`.
+
+2.  **Create a Release**:
+    When you are ready to publish a new version:
+    - Go to **Releases** > **Draft a new release**.
+    - Tag the version (e.g., `v1.0.0`).
+    - Click **Publish release**.
+    - GitHub Actions will automatically build the `.exe` and upload it to the release assets for users to download.
+
+### Option 2: Manual Build (Local)
+
+To create a standalone executable (`.exe`) on your own Windows PC:
 
 1.  **Run the Build Script**:
     Double-click `build_exe.bat` or run it from the terminal:
     ```bash
     build_exe.bat
     ```
-    This script installs `pyinstaller` and builds the executable.
 
 2.  **Locate the Executable**:
     The generated `RaspberryPiBootConfigurer.exe` will be in the `dist/` folder.
-
-3.  **Create a GitHub Release**:
-    - Go to your GitHub repository > **Releases** > **Draft a new release**.
-    - Tag the release (e.g., `v1.0.0`).
-    - Upload `RaspberryPiBootConfigurer.exe` from the `dist/` folder as a binary asset.
-    - Publish the release. Users can now download the `.exe` directly.
 
 ## Project Structure
 
