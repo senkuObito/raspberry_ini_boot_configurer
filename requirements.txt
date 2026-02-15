@@ -2,3 +2,4 @@ customtkinter
 passlib
 PyYAML
 Pillow
+pyinstaller

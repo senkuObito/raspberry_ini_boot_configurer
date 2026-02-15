@@ -1,0 +1,9 @@
+@echo off
+echo Cleaning up Git index...
+git rm -r --cached .
+echo Re-adding files based on .gitignore...
+git add .
+echo Committing cleanup...
+git commit -m "chore: remove ignored files (__pycache__) from repository"
+echo Done! Now run 'git push' to update your remote repository.
+pause
