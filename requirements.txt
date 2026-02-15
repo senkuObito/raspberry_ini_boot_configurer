@@ -1,0 +1,4 @@
+customtkinter
+passlib
+PyYAML
+Pillow
